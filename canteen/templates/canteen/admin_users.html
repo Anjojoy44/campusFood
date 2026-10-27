@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo"><span class="logo-icon">🍽️</span>Food<span class="logo-highlight">Hub</span> <span style="color: #ff6b35; font-weight: bold;">ADMIN</span></div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="/dashboard" class="nav-link active">Dashboard</a></li>
+            <li><a href="/add-admin/" class="nav-link">Add Admin</a></li>
+            <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="dashboard-section">
+    <div class="dashboard-container">
+        <main class="dashboard-content" style="max-width: 1100px; margin: 0 auto;">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="welcome-card" style="background: linear-gradient(135deg, #1f5a44 0%, #2f855d 42%, #f08d4b 100%);">
+                <h1>All Registered Users</h1>
+                <p>Manage and review each person in the system.</p>
+            </div>
+
+            <div class="dashboard-section-card">
+                <h2>👥 User List</h2>
+                <div class="table-container">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Admission Number</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in users %}
+                                <tr>
+                                    <td>{{ entry.get_full_name|default:'N/A' }}</td>
+                                    <td>{{ entry.username }}</td>
+                                    <td>{{ entry.email|default:'N/A' }}</td>
+                                    <td>{{ entry.profile.admission_id|default:'Not provided' }}</td>
+                                    <td>
+                                        {% if entry.profile %}
+                                            {{ entry.profile.get_user_type_display }}
+                                        {% else %}
+                                            Student
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.date_joined|date:'M d, Y' }}</td>
+                                    <td>
+                                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                            <a href="/users/{{ entry.id }}/edit/" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.8rem;">Update</a>
+                                            {% if entry.id != user.id %}
+                                                <form method="post" action="/users/{{ entry.id }}/delete/" onsubmit="return confirm('Delete this user?');" style="margin:0;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger" style="padding: 8px 12px; font-size: 0.8rem; background:#dc3545; color:#fff; border:none; border-radius:6px;">Delete</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" style="text-align:center; padding:20px; color:#999;">No users found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order - FoodHub</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/auth.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><span class="logo-icon">🍽️</span> Food<span class="logo-highlight">Hub</span></div>
+            <ul class="nav-menu">
+                <li><a href="{% url 'menu_catalog' %}" class="nav-link">Today's Menu</a></li>
+                <li><a href="{% url 'my_orders' %}" class="nav-link">My Orders</a></li>
+                <li><a href="{% url 'logout' %}" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="auth-section">
+        <div class="auth-container">
+            <div class="auth-box">
+                <div class="auth-header"><h1>Place Your Order</h1><p>Select a menu item and delivery date.</p></div>
+                {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
+                <form method="post" class="auth-form">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}
+                            {% for error in field.errors %}<div class="error-messages"><span>{{ error }}</span></div>{% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary btn-block">Place Order</button>
+                </form>
+                <div class="auth-footer"><p><a href="{% url 'menu_catalog' %}">Back to today's menu</a></p></div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

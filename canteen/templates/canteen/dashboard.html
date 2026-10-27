@@ -1,0 +1,227 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Food Management System</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🍽️</span>
+                Food<span class="logo-highlight">Hub</span>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/dashboard" class="nav-link active">Dashboard</a></li>
+                <li><a href="/profile" class="nav-link">Profile</a></li>
+                <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard-section">
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="dashboard-sidebar">
+                <div class="sidebar-profile">
+                    <div class="profile-avatar">{{ user.first_name|slice:':1'|upper }}</div>
+                    <div class="profile-info">
+                        <h4>{{ user.get_full_name }}</h4>
+                        <p class="profile-role">{{ profile.get_user_type_display }}</p>
+                        <small>Member since {{ user.date_joined|date:'M Y' }}</small>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="/dashboard" class="sidebar-link active">
+                        <span class="icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="{% url 'menu_catalog' %}" class="sidebar-link">
+                        <span class="icon">🍽️</span>
+                        Today's Menu
+                    </a>
+                    <a href="{% url 'my_orders' %}" class="sidebar-link">
+                        <span class="icon">📋</span>
+                        My Bookings
+                    </a>
+                    <a href="{% url 'my_orders_by_date' %}" class="sidebar-link">
+                        <span class="icon">📅</span>
+                        Orders by Date
+                    </a>
+                    <a href="{% url 'my_orders_by_month' %}" class="sidebar-link">
+                        <span class="icon">🗓️</span>
+                        Orders by Month
+                    </a>
+                    <a href="{% url 'notifications' %}" class="sidebar-link">
+                        <span class="icon">🔔</span>
+                        Notifications
+                    </a>
+                    <a href="{% url 'menu_catalog' %}" class="sidebar-link">
+                        <span class="icon">🏷️</span>
+                        Active Offers
+                    </a>
+                    <a href="{% url 'submit_feedback' %}" class="sidebar-link">
+                        <span class="icon">⭐</span>
+                        Feedback
+                    </a>
+                    <a href="/profile" class="sidebar-link">
+                        <span class="icon">👤</span>
+                        My Profile
+                    </a>
+                </nav>
+
+                <a href="/logout" class="sidebar-logout">
+                    <span class="icon">🚪</span>
+                    Logout
+                </a>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                                {{ message }}
+                                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <h1>Welcome, {{ user.first_name }}! 👋</h1>
+                    <p>Here's your canteen dashboard. Start by viewing today's menu or your bookings.</p>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <h3>My Bookings</h3>
+                            <p class="stat-number">{{ bookings_count }}</p>
+                            <a href="{% url 'my_orders' %}" class="stat-link">View bookings →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-content">
+                            <h3>Active Offers</h3>
+                            <p class="stat-number">0</p>
+                            <a href="{% url 'menu_catalog' %}" class="stat-link">Browse offers →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🔔</div>
+                        <div class="stat-content">
+                            <h3>Notifications</h3>
+                            <p class="stat-number">{{ notifications_count }}</p>
+                            <a href="{% url 'notifications' %}" class="stat-link">View notifications →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3>Feedback</h3>
+                            <p class="stat-number">0</p>
+                            <a href="{% url 'submit_feedback' %}" class="stat-link">Give feedback →</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Today's Menu Section -->
+                <div class="dashboard-section-card">
+                    <h2>Today's Special Menu</h2>
+                    <div class="menu-preview-grid">
+                        {% for item in menu_items %}
+                            <div class="menu-item">
+                                <span class="meal-type">{{ item.get_meal_type_display }}</span>
+                                <h4>{{ item.name }}</h4>
+                                <p>{{ item.description }}</p>
+                                <strong>₹{{ item.price }}</strong>
+                                <p>{{ item.available_quantity }} available</p>
+                                <a href="{% url 'place_order_for_menu' item.id %}" class="btn btn-primary btn-small">Order now</a>
+                            </div>
+                        {% empty %}
+                            <p>No menu items are available yet.</p>
+                        {% endfor %}
+                    </div>
+                    <div class="section-footer">
+                        <a href="{% url 'menu_catalog' %}" class="btn btn-primary">View Full Menu</a>
+                    </div>
+                </div>
+
+                <!-- Fresh Offers Section -->
+                <div class="dashboard-section-card">
+                    <h2>Fresh Food Offers</h2>
+                    <div class="offers-preview-grid">
+                        {% for offer in offers %}
+                            <div class="offer-item">
+                                <span class="offer-badge">{{ offer.discount_percentage }}% OFF</span>
+                                <h4>{{ offer.name }}</h4>
+                                <p>{{ offer.description }}</p>
+                                <strong>₹{{ offer.discounted_price }}</strong>
+                            </div>
+                        {% empty %}
+                            <p>No active offers are available yet.</p>
+                        {% endfor %}
+                    </div>
+                    <div class="section-footer">
+                        <a href="{% url 'menu_catalog' %}" class="btn btn-primary">View All Offers</a>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-section-card">
+                    <h2>Recent Activity</h2>
+                    <div class="activity-log">
+                        <div class="activity-item">
+                            <div class="activity-icon">✓</div>
+                            <div class="activity-content">
+                                <p>Account created successfully</p>
+                                <small>{{ user.date_joined|date:'M d, Y' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Food Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'canteen/js/script.js' %}"></script>
+</body>
+
+</html>

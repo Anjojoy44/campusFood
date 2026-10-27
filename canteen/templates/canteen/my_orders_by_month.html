@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders by Month - FoodHub</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><span class="logo-icon">🍽️</span> Food<span class="logo-highlight">Hub</span></div>
+            <ul class="nav-menu">
+                <li><a href="{% url 'menu_catalog' %}" class="nav-link">Today's Menu</a></li>
+                <li><a href="{% url 'my_orders' %}" class="nav-link">My Orders</a></li>
+                <li><a href="{% url 'my_orders_by_date' %}" class="nav-link">Orders by Date</a></li>
+                <li><a href="{% url 'my_orders_by_month' %}" class="nav-link active">Orders by Month</a></li>
+                <li><a href="{% url 'profile' %}" class="nav-link">Profile</a></li>
+                <li><a href="{% url 'logout' %}" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="dashboard-section">
+        <div class="section-container">
+            <div class="welcome-card">
+                <h1>My Orders by Month</h1>
+                <p>Choose a month to see your orders by delivery date.</p>
+            </div>
+            <section class="dashboard-section-card">
+                <form method="get" style="display:flex; gap:12px; align-items:end; flex-wrap:wrap;">
+                    <label for="order-month">
+                        Delivery month
+                        <input id="order-month" type="month" name="month" value="{{ selected_month|date:'Y-m' }}" required>
+                    </label>
+                    <label for="order-status">
+                        Order status
+                        <select id="order-status" name="status">
+                            <option value="" {% if not selected_status %}selected{% endif %}>All statuses</option>
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit" class="btn btn-primary">View Orders</button>
+                    <a href="{% url 'my_orders' %}" class="btn">All My Orders</a>
+                </form>
+                <p>
+                    <a class="btn" href="{% url 'download_my_order_report' 'month' 'xlsx' %}?month={{ selected_month|date:'Y-m' }}&amp;status={{ selected_status|urlencode }}">Download Excel</a>
+                    <a class="btn" href="{% url 'download_my_order_report' 'month' 'pdf' %}?month={{ selected_month|date:'Y-m' }}&amp;status={{ selected_status|urlencode }}">Download PDF</a>
+                </p>
+            </section>
+            <section class="dashboard-section-card">
+                <h2>Orders for {{ selected_month|date:'F Y' }}</h2>
+                {% if orders %}
+                    <div class="table-responsive">
+                        <table>
+                            <thead><tr><th>Order ID</th><th>Item</th><th>Quantity</th><th>Delivery date</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {% for order in orders %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>
+                                            {% if order.menu_item %}
+                                                {{ order.menu_item.name }}
+                                            {% elif order.offer %}
+                                                {{ order.offer.name }}
+                                            {% else %}
+                                                Removed item
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>{{ order.delivery_date|date:'M d, Y' }}</td>
+                                        <td>₹{{ order.total_price }}</td>
+                                        <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                                        <td>
+                                            {% if order.can_cancel %}
+                                                <form method="post" action="{% url 'cancel_order' order.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-small">Cancel</button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>You have no orders for this month.</p>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+</body>
+</html>

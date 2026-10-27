@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo"><span class="logo-icon">🍽️</span>Food<span class="logo-highlight">Hub</span> <span style="color: #f7931e; font-weight: bold;">STAFF</span></div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="/dashboard" class="nav-link active">Dashboard</a></li>
+            <li><a href="{% url 'notifications' %}" class="nav-link">Notifications</a></li>
+            <li><a href="/staff/menu/" class="nav-link">Menu</a></li>
+            <li><a href="/staff/offers/" class="nav-link">Offers</a></li>
+            <li><a href="{% url 'staff_orders_by_date' %}" class="nav-link">Orders by Date</a></li>
+            <li><a href="{% url 'staff_orders_by_month' %}" class="nav-link">Orders by Month</a></li>
+            <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="dashboard-section">
+    <div class="dashboard-container">
+        <main class="dashboard-content" style="max-width: 1100px; margin: 0 auto;">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="welcome-card" style="background: linear-gradient(135deg, #1f5a44 0%, #2f855d 42%, #f08d4b 100%);">
+                <h1>Order Management</h1>
+                <p>Review pending orders and update statuses.</p>
+            </div>
+
+            <div class="dashboard-section-card">
+                <h2>📦 Orders</h2>
+                <form method="get" style="display:flex; gap:8px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">
+                    <label for="order-search">Search</label>
+                    <input id="order-search" type="search" name="q" value="{{ search_query }}" placeholder="Customer, admission number, item, status or order ID" style="flex:1; min-width:220px; padding:10px; border:1px solid #ccc; border-radius:6px;">
+                    <label for="order-search-by">Search in</label>
+                    <select id="order-search-by" name="search_by" style="padding:10px; border:1px solid #ccc; border-radius:6px;">
+                        {% for value, label in search_fields %}
+                            <option value="{{ value }}" {% if search_by == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="order-status">Status</label>
+                    <select id="order-status" name="status" style="padding:10px; border:1px solid #ccc; border-radius:6px;">
+                        <option value="">All statuses</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-small">Search</button>
+                    {% if search_query or selected_status %}
+                        <a href="{% url 'staff_orders' %}" class="btn btn-small">Clear</a>
+                    {% endif %}
+                </form>
+                <div class="table-container">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Admission number</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                                    <td>{{ order.user.profile.admission_id|default:'Not provided' }}</td>
+                                    <td>
+                                        {% if order.menu_item %}
+                                            {{ order.menu_item.name }}
+                                        {% elif order.offer %}
+                                            {{ order.offer.name }}
+                                        {% else %}
+                                            Removed item
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.quantity }}</td>
+                                    <td>₹{{ order.total_price }}</td>
+                                    <td>{{ order.get_status_display }}</td>
+                                    <td>
+                                        <form method="post" style="display:flex; gap:8px; align-items:center;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                                            <select name="status">
+                                                {% for value, label in order.STATUS_CHOICES %}
+                                                    {% if value != 'delivered' %}
+                                                        <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                        </form>
+                                        {% if order.status != 'delivered' and order.status != 'cancelled' %}
+                                            <form method="post" action="{% url 'confirm_order_delivery' order.id %}" style="margin-top:8px;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="return_to" value="staff_orders">
+                                                <button type="submit" class="btn btn-primary btn-small">Mark as Delivered</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">No orders found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</section>
+</body>
+</html>

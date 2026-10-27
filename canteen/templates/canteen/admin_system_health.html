@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health - Food Management System</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🍽️</span>
+                Food<span class="logo-highlight">Hub</span> <span style="color: #f7931e; font-weight: bold;">ADMIN</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/dashboard" class="nav-link active">Admin Dashboard</a></li>
+                <li><a href="/profile" class="nav-link">Profile</a></li>
+                <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard-section menu-management-section">
+        <div class="dashboard-container menu-management-container">
+            <main class="dashboard-content menu-management-content">
+                <div class="welcome-card menu-management-welcome">
+                    <div>
+                        <p class="welcome-kicker">OPERATIONS STATUS</p>
+                        <h1>System Health</h1>
+                        <p>Monitor the current health of the campus canteen platform.</p>
+                    </div>
+                    <div class="welcome-badge">{{ system_status }}</div>
+                </div>
+
+                <div class="menu-summary-grid">
+                    <div class="summary-stat">
+                        <span class="summary-label">Users</span>
+                        <strong>{{ all_users }}</strong>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="summary-label">Orders</span>
+                        <strong>{{ total_orders }}</strong>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="summary-label">Pending</span>
+                        <strong>{{ pending_orders }}</strong>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="summary-label">Feedback</span>
+                        <strong>{{ total_feedback }}</strong>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="summary-label">Active Menu</span>
+                        <strong>{{ active_menu_items }}</strong>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="summary-label">Avg Rating</span>
+                        <strong>{{ avg_rating|floatformat:1 }}</strong>
+                    </div>
+                </div>
+
+                <div class="menu-management-panels">
+                    <div class="dashboard-section-card menu-item-form-card">
+                        <h2>📊 Live Platform Status</h2>
+                        <div class="info-block" style="padding: 0 8px 8px;">
+                            <ul>
+                                <li><strong>Application status:</strong> {{ system_status }}</li>
+                                <li><strong>Active offers:</strong> {{ active_offers }}</li>
+                                <li><strong>Pending orders:</strong> {{ pending_orders }}</li>
+                                <li><strong>Available menu items:</strong> {{ active_menu_items }}</li>
+                                <li><strong>Registered users:</strong> {{ all_users }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-section-card menu-items-card">
+                        <h2>🛠️ Operational Notes</h2>
+                        <div class="info-block" style="padding: 0 8px 8px;">
+                            <ul>
+                                <li>All core menus and orders are being tracked in the system.</li>
+                                <li>Staff and admin actions are logged for review.</li>
+                                <li>Average feedback remains visible to help assess food quality.</li>
+                                <li>System remains ready for daily canteen operations.</li>
+                            </ul>
+                        </div>
+                        <div class="section-footer" style="padding-top: 18px;">
+                            <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+</body>
+</html>

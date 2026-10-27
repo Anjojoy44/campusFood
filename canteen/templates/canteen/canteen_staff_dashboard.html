@@ -1,0 +1,294 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Staff Dashboard - Food Management System</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🍽️</span>
+                Food<span class="logo-highlight">Hub</span> <span style="color: #f7931e; font-weight: bold;">STAFF</span>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/dashboard" class="nav-link active">Staff Dashboard</a></li>
+                <li><a href="{% url 'notifications' %}" class="nav-link">Notifications ({{ notifications_count }})</a></li>
+                <li><a href="/profile" class="nav-link">Profile</a></li>
+                <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Canteen Staff Dashboard Section -->
+    <section class="dashboard-section">
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="dashboard-sidebar">
+                <div class="sidebar-profile">
+                    <div class="profile-avatar">{{ user.first_name|slice:':1'|upper }}</div>
+                    <div class="profile-info">
+                        <h4>{{ user.get_full_name }}</h4>
+                        <p class="profile-role">👨‍🍳 Canteen Staff</p>
+                        <small>Since {{ user.date_joined|date:'M Y' }}</small>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="/dashboard" class="sidebar-link active">
+                        <span class="icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="/staff/menu/" class="sidebar-link">
+                        <span class="icon">📤</span>
+                        Upload Menu
+                    </a>
+                    <a href="/staff/menu/" class="sidebar-link">
+                        <span class="icon">🍽️</span>
+                        Update Menu
+                    </a>
+                    <a href="/staff/offers/" class="sidebar-link">
+                        <span class="icon">🏷️</span>
+                        Manage Offers
+                    </a>
+                    <a href="/staff/orders/" class="sidebar-link">
+                        <span class="icon">📦</span>
+                        View Orders
+                    </a>
+                    <a href="{% url 'staff_orders_by_date' %}" class="sidebar-link">
+                        <span class="icon">📅</span>
+                        Orders by Date
+                    </a>
+                    <a href="{% url 'staff_orders_by_month' %}" class="sidebar-link">
+                        <span class="icon">🗓️</span>
+                        Orders by Month
+                    </a>
+                    <a href="{% url 'notifications' %}" class="sidebar-link">
+                        <span class="icon">🔔</span>
+                        Notifications ({{ notifications_count }})
+                    </a>
+                    <a href="/staff/feedback/" class="sidebar-link">
+                        <span class="icon">⭐</span>
+                        User Feedback
+                    </a>
+                    <a href="/profile" class="sidebar-link">
+                        <span class="icon">👤</span>
+                        My Profile
+                    </a>
+                </nav>
+
+                <a href="/logout" class="sidebar-logout">
+                    <span class="icon">🚪</span>
+                    Logout
+                </a>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                                {{ message }}
+                                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Welcome Card -->
+                <div class="welcome-card" style="background: linear-gradient(135deg, #1f5a44 0%, #2f855d 42%, #f08d4b 100%);">
+                    <h1>Welcome {{ user.first_name }}! 👋</h1>
+                    <p>Manage menus, orders, offers, and track food inventory and availability.</p>
+                </div>
+
+                <!-- Time-Based Information Cards -->
+                <div class="time-restrictions-grid">
+                    <div class="time-card">
+                        <div class="time-icon">⏰</div>
+                        <h4>Menu Update</h4>
+                        <p class="time-window"><strong>Before 9:00 AM</strong></p>
+                        <small>Update daily menu before college time</small>
+                        <a href="/staff/menu/" class="btn btn-primary" style="margin-top: 10px; width: 100%; text-align: center; display: block;">Update Menu</a>
+                    </div>
+
+                    <div class="time-card">
+                        <div class="time-icon">📦</div>
+                        <h4>Order Window</h4>
+                        <p class="time-window"><strong>7:00 PM Previous Day</strong></p>
+                        <small>Students can order from 7 PM day before</small>
+                        <a href="/staff/orders/" class="btn btn-primary" style="margin-top: 10px; width: 100%; text-align: center; display: block;">View Orders</a>
+                    </div>
+
+                    <div class="time-card">
+                        <div class="time-icon">🏷️</div>
+                        <h4>Offer Availability</h4>
+                        <p class="time-window"><strong>Set per offer</strong></p>
+                        <small>Offers can be created at any time</small>
+                        <a href="/staff/offers/" class="btn btn-primary" style="margin-top: 10px; width: 100%; text-align: center; display: block;">Create Offer</a>
+                    </div>
+
+                    <div class="time-card">
+                        <div class="time-icon">💰</div>
+                        <h4>Price Management</h4>
+                        <p class="time-window"><strong>Anytime</strong></p>
+                        <small>Set and update food prices</small>
+                        <a href="{% url 'staff_menu' %}" class="btn btn-primary" style="margin-top: 10px; width: 100%; text-align: center; display: block;">Set Prices</a>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <h3>Today's Orders</h3>
+                            <p class="stat-number">0</p>
+                            <a href="/staff/orders/" class="stat-link">View orders →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-content">
+                            <h3>Active Offers</h3>
+                            <p class="stat-number">0</p>
+                            <a href="/staff/offers/" class="stat-link">Manage offers →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🍽️</div>
+                        <div class="stat-content">
+                            <h3>Menu Items</h3>
+                            <p class="stat-number">0</p>
+                            <a href="/staff/menu/" class="stat-link">Upload menu →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3>Avg Rating</h3>
+                            <p class="stat-number">{{ avg_rating|floatformat:1 }}</p>
+                            <a href="/staff/feedback/" class="stat-link">View feedback →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Management Section -->
+                <div class="dashboard-section-card">
+                    <h2>📋 Menu Management</h2>
+                    <div class="management-grid">
+                        <div class="management-item">
+                            <div class="management-icon">📤</div>
+                            <h4>Upload Menu</h4>
+                            <p>Add new menu items for the day</p>
+                            <a href="/staff/menu/" class="btn btn-primary">Upload Menu</a>
+                        </div>
+
+                        <div class="management-item">
+                            <div class="management-icon">✏️</div>
+                            <h4>Update Menu</h4>
+                            <p>Edit or update existing menu items</p>
+                            <a href="/staff/menu/" class="btn btn-primary">Update Menu</a>
+                        </div>
+
+                        <div class="management-item">
+                            <div class="management-icon">💰</div>
+                            <h4>Set Prices</h4>
+                            <p>Adjust food item prices</p>
+                            <a href="{% url 'staff_menu' %}" class="btn btn-primary">Set Prices</a>
+                        </div>
+
+                        <div class="management-item">
+                            <div class="management-icon">⚖️</div>
+                            <h4>Food Quantity</h4>
+                            <p>Manage available food stock</p>
+                            <a href="{% url 'staff_menu' %}" class="btn btn-primary">Manage Quantity</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offer Management Section -->
+                <div class="dashboard-section-card">
+                    <h2>🏷️ Offer Management</h2>
+                    <div class="offer-info">
+                        <div class="info-block">
+                            <h4>⏰ Offer Timing</h4>
+                            <ul>
+                                <li><strong>Creation:</strong> Available at any time</li>
+                                <li><strong>Availability:</strong> Set dates and times on each offer</li>
+                                <li><strong>Discount:</strong> Set by canteen staff</li>
+                            </ul>
+                        </div>
+                        <a href="/staff/offers/" class="btn btn-primary" style="margin-top: 20px; display: inline-block;">Create New Offer</a>
+                    </div>
+                </div>
+
+                <!-- Order Management Section -->
+                <div class="dashboard-section-card">
+                    <h2>📦 Order Management</h2>
+                    <div class="order-info">
+                        <div class="info-block">
+                            <h4>📅 Order Window</h4>
+                            <ul>
+                                <li><strong>Order Start:</strong> 7:00 PM (Previous Day)</li>
+                                <li><strong>Order Close:</strong> Day of delivery (before menu cutoff)</li>
+                                <li><strong>Delivery Date:</strong> Next day</li>
+                                <li><strong>Tracking:</strong> View all pending orders</li>
+                            </ul>
+                        </div>
+                        <a href="/staff/orders/" class="btn btn-primary" style="margin-top: 20px;">View All Orders</a>
+                        <a href="{% url 'staff_orders_by_date' %}" class="btn btn-primary" style="margin-top: 20px;">View Orders by Date</a>
+                    </div>
+                </div>
+
+                <!-- User Feedback Section -->
+                <div class="dashboard-section-card">
+                    <h2>⭐ User Feedback</h2>
+                    <div class="feedback-container">
+                        <div style="padding: 20px; text-align: center; color: #999;">
+                            <p>📊 No feedback available yet</p>
+                            <p>User feedback will appear here as students rate the food</p>
+                        </div>
+                    </div>
+                    <div class="section-footer">
+                        <a href="/staff/feedback/" class="btn btn-primary">View Detailed Feedback</a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Food Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'canteen/js/script.js' %}"></script>
+</body>
+
+</html>

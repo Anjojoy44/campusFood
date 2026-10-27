@@ -1,0 +1,277 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Management</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo"><span class="logo-icon">🍽️</span>Food<span class="logo-highlight">Hub</span> <span style="color: #f7931e; font-weight: bold;">STAFF</span></div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="/dashboard" class="nav-link active">Dashboard</a></li>
+            <li><a href="/staff/menu/" class="nav-link">Menu</a></li>
+            <li><a href="/staff/offers/" class="nav-link">Offers</a></li>
+            <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="dashboard-section menu-management-section">
+    <div class="dashboard-container menu-management-container">
+        <main class="dashboard-content menu-management-content" style="width: 1415px;">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="welcome-card menu-management-welcome">
+                <div>
+                    <p class="welcome-kicker">CANTEEN OPERATIONS</p>
+                    <h1>Menu Management</h1>
+                    <p>Upload and update menu items before 9:00 AM.</p>
+                </div>
+                <div class="welcome-badge">Live Menu</div>
+            </div>
+
+            <div class="menu-summary-grid">
+                <div class="summary-stat">
+                    <span class="summary-label">Total Items</span>
+                    <strong>{{ menu_items|length }}</strong>
+                </div>
+                <div class="summary-stat">
+                    <span class="summary-label">Available</span>
+                    <strong>{{ menu_items|length }}</strong>
+                </div>
+                <div class="summary-stat">
+                    <span class="summary-label">Needs Update</span>
+                    <strong>0</strong>
+                </div>
+            </div>
+
+            <div class="menu-management-panels">
+                {% if not editing_item %}
+                    <div class="dashboard-section-card menu-item-form-card">
+                        <h2>📤 Add Menu Item</h2>
+                        <form method="post" class="menu-item-form">
+                            {% csrf_token %}
+                            {{ form.non_field_errors }}
+                            <fieldset class="menu-form-group">
+                                <legend>Item details</legend>
+                                <div class="menu-form-grid">
+                                    <div class="menu-form-field">
+                                        {{ form.name.label_tag }}
+                                        {{ form.name }}
+                                        {{ form.name.errors }}
+                                    </div>
+                                    <div class="menu-form-field menu-form-field-wide">
+                                        {{ form.description.label_tag }}
+                                        {{ form.description }}
+                                        {{ form.description.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.category.label_tag }}
+                                        {{ form.category }}
+                                        {{ form.category.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.meal_type.label_tag }}
+                                        {{ form.meal_type }}
+                                        {{ form.meal_type.errors }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="menu-form-group">
+                                <legend>Price and availability</legend>
+                                <div class="menu-form-grid">
+                                    <div class="menu-form-field">
+                                        {{ form.price.label_tag }}
+                                        {{ form.price }}
+                                        {{ form.price.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.available_quantity.label_tag }}
+                                        {{ form.available_quantity }}
+                                        {{ form.available_quantity.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.availability_status.label_tag }}
+                                        {{ form.availability_status }}
+                                        {{ form.availability_status.errors }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="menu-form-group">
+                                <legend>Serving schedule</legend>
+                                <div class="menu-form-grid">
+                                    <div class="menu-form-field">
+                                        {{ form.date.label_tag }}
+                                        {{ form.date }}
+                                        {{ form.date.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.opening_time.label_tag }}
+                                        {{ form.opening_time }}
+                                        {{ form.opening_time.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.closing_time.label_tag }}
+                                        {{ form.closing_time }}
+                                        {{ form.closing_time.errors }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="menu-form-group menu-form-options">
+                                <legend>Order handling</legend>
+                                <div class="menu-form-checkbox">
+                                    {{ form.auto_approve_orders }}
+                                    {{ form.auto_approve_orders.label_tag }}
+                                    {{ form.auto_approve_orders.errors }}
+                                </div>
+                            </fieldset>
+                            <div class="menu-form-actions">
+                                <button type="submit" class="btn btn-primary">Save Menu Item</button>
+                            </div>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="dashboard-section-card menu-item-form-card">
+                        <h2>✏️ Update Menu Item</h2>
+                        <form method="post" class="menu-item-form">
+                            {% csrf_token %}
+                            {{ form.non_field_errors }}
+                            <fieldset class="menu-form-group">
+                                <legend>Item details</legend>
+                                <div class="menu-form-grid">
+                                    <div class="menu-form-field">
+                                        {{ form.name.label_tag }}
+                                        {{ form.name }}
+                                        {{ form.name.errors }}
+                                    </div>
+                                    <div class="menu-form-field menu-form-field-wide">
+                                        {{ form.description.label_tag }}
+                                        {{ form.description }}
+                                        {{ form.description.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.category.label_tag }}
+                                        {{ form.category }}
+                                        {{ form.category.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.meal_type.label_tag }}
+                                        {{ form.meal_type }}
+                                        {{ form.meal_type.errors }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="menu-form-group">
+                                <legend>Price and availability</legend>
+                                <div class="menu-form-grid">
+                                    <div class="menu-form-field">
+                                        {{ form.price.label_tag }}
+                                        {{ form.price }}
+                                        {{ form.price.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.available_quantity.label_tag }}
+                                        {{ form.available_quantity }}
+                                        {{ form.available_quantity.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.availability_status.label_tag }}
+                                        {{ form.availability_status }}
+                                        {{ form.availability_status.errors }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="menu-form-group">
+                                <legend>Serving schedule</legend>
+                                <div class="menu-form-grid">
+                                    <div class="menu-form-field">
+                                        {{ form.date.label_tag }}
+                                        {{ form.date }}
+                                        {{ form.date.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.opening_time.label_tag }}
+                                        {{ form.opening_time }}
+                                        {{ form.opening_time.errors }}
+                                    </div>
+                                    <div class="menu-form-field">
+                                        {{ form.closing_time.label_tag }}
+                                        {{ form.closing_time }}
+                                        {{ form.closing_time.errors }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="menu-form-group menu-form-options">
+                                <legend>Order handling</legend>
+                                <div class="menu-form-checkbox">
+                                    {{ form.auto_approve_orders }}
+                                    {{ form.auto_approve_orders.label_tag }}
+                                    {{ form.auto_approve_orders.errors }}
+                                </div>
+                            </fieldset>
+                            <div class="menu-form-actions">
+                                <button type="submit" class="btn btn-primary">Update Menu Item</button>
+                                <a href="{% url 'staff_menu' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+
+                <div class="dashboard-section-card menu-items-card">
+                    <h2>📋 Existing Menu Items</h2>
+                    <div class="table-container">
+                        <table class="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Meal</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in menu_items %}
+                                    <tr>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.get_meal_type_display }}</td>
+                                        <td>{{ item.category }}</td>
+                                        <td>₹{{ item.price }}</td>
+                                        <td>{{ item.available_quantity }}</td>
+                                        <td>{{ item.date }}</td>
+                                        <td>
+                                            <div class="menu-action-group">
+                                                <a href="{% url 'staff_menu_edit' item.id %}" class="btn btn-small btn-primary">Edit</a>
+                                                <form method="post" action="{% url 'staff_menu_delete' item.id %}" class="inline-delete-form">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to remove this menu item?');">Remove</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="7" style="text-align:center; padding:20px; color:#999;">No menu items uploaded yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</section>
+</body>
+</html>

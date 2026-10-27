@@ -1,0 +1,249 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Food Management System</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🍽️</span>
+                Food<span class="logo-highlight">Hub</span> <span style="color: #ff6b35; font-weight: bold;">ADMIN</span>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/dashboard" class="nav-link active">Admin Dashboard</a></li>
+                <li><a href="/profile" class="nav-link">Profile</a></li>
+                <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard Section -->
+    <section class="dashboard-section">
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="dashboard-sidebar">
+                <div class="sidebar-profile">
+                    <div class="profile-avatar">{{ user.first_name|slice:':1'|upper }}</div>
+                    <div class="profile-info">
+                        <h4>{{ user.get_full_name }}</h4>
+                        <p class="profile-role">👨‍💼 Administrator</p>
+                        <small>Admin since {{ user.date_joined|date:'M Y' }}</small>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="/dashboard" class="sidebar-link active">
+                        <span class="icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="{% url 'admin_add_admin' %}" class="sidebar-link">
+                        <span class="icon">👥</span>
+                        Add New Admin
+                    </a>
+                    <a href="{% url 'staff_orders' %}" class="sidebar-link">
+                        <span class="icon">📋</span>
+                        All Orders
+                    </a>
+                    <a href="{% url 'staff_feedback' %}" class="sidebar-link">
+                        <span class="icon">⭐</span>
+                        User Feedback
+                    </a>
+                    <a href="{% url 'admin_system_health' %}" class="sidebar-link">
+                        <span class="icon">📈</span>
+                        System Health
+                    </a>
+                    <a href="/profile" class="sidebar-link">
+                        <span class="icon">👤</span>
+                        My Profile
+                    </a>
+                </nav>
+
+                <a href="/logout" class="sidebar-logout">
+                    <span class="icon">🚪</span>
+                    Logout
+                </a>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                                {{ message }}
+                                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <h1>Welcome Admin, {{ user.first_name }}! 👋</h1>
+                    <p>Monitor all system activities, user management, orders, and feedback.</p>
+                    <div style="margin-top: 18px;">
+                        <a href="{% url 'admin_add_admin' %}" class="btn btn-primary">+ Add New Admin</a>
+                    </div>
+                </div>
+
+                <!-- Admin Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3>Total Users</h3>
+                            <p class="stat-number">{{ all_users }}</p>
+                            <a href="{% url 'admin_users' %}" class="stat-link">View all users →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <h3>Total Orders</h3>
+                            <p class="stat-number">{{ total_orders }}</p>
+                            <a href="/staff/orders/" class="stat-link">View orders →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3>Feedback</h3>
+                            <p class="stat-number">{{ feedback_list|length }}</p>
+                            <a href="/staff/feedback/" class="stat-link">View feedback →</a>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🔒</div>
+                        <div class="stat-content">
+                            <h3>System Health</h3>
+                            <p class="stat-number">✓</p>
+                            <a href="{% url 'admin_system_health' %}" class="stat-link">View details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent User Logins -->
+                <div class="dashboard-section-card">
+                    <h2>🔐 Recent User Logins</h2>
+                    <div class="table-container">
+                        <table class="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>User Type</th>
+                                    <th>Login Time</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in user_logins %}
+                                    <tr>
+                                        <td><strong>{{ log.user.get_full_name }}</strong></td>
+                                        <td><span class="badge badge-info">{{ log.user.profile.get_user_type_display }}</span></td>
+                                        <td>{{ log.timestamp|date:'M d, Y H:i' }}</td>
+                                        <td><code>{{ log.ip_address|default:"N/A" }}</code></td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; padding: 20px; color: #999;">No login activity yet</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="section-footer">
+                        <a href="#" class="btn btn-primary">View All Logins</a>
+                    </div>
+                </div>
+
+                <!-- System Activity Log -->
+                <div class="dashboard-section-card">
+                    <h2>📊 System Activity Log</h2>
+                    <div class="activity-log">
+                        {% for log in activity_logs %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    {% if log.action == 'login' %}✓
+                                    {% elif log.action == 'logout' %}↩
+                                    {% elif log.action == 'menu_upload' %}📤
+                                    {% elif log.action == 'offer_created' %}🏷
+                                    {% else %}📝{% endif %}
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>{{ log.user.get_full_name }}</strong> - {{ log.get_action_display }}</p>
+                                    <small>{{ log.description }}</small>
+                                    <div style="margin-top: 5px; font-size: 0.75rem; color: #999;">{{ log.timestamp|date:'M d, Y H:i:s' }}</div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div style="padding: 20px; text-align: center; color: #999;">No activity recorded yet</div>
+                        {% endfor %}
+                    </div>
+                    <div class="section-footer">
+                        <a href="{% url 'admin_system_health' %}" class="btn btn-primary">View System Health</a>
+                    </div>
+                </div>
+
+                <!-- User Feedback Section -->
+                <div class="dashboard-section-card">
+                    <h2>⭐ User Feedback</h2>
+                    <div class="feedback-container">
+                        {% if feedback_list %}
+                            {% for feedback in feedback_list %}
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <strong>{{ feedback.user.get_full_name }}</strong>
+                                        <span class="feedback-rating">{{ feedback.get_rating_display }}</span>
+                                    </div>
+                                    <p>{{ feedback.comment }}</p>
+                                    <small>{{ feedback.created_at|date:'M d, Y H:i' }}</small>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="padding: 20px; text-align: center; color: #999;">No feedback yet</div>
+                        {% endif %}
+                    </div>
+                    <div class="section-footer">
+                        <a href="{% url 'staff_feedback' %}" class="btn btn-primary">View All Feedback</a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Food Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'canteen/js/script.js' %}"></script>
+</body>
+
+</html>

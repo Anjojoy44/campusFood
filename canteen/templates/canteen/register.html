@@ -1,0 +1,231 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Food Management System</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/auth.css' %}">
+</head>
+
+<body class="registration-page">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🍽️</span>
+                Food<span class="logo-highlight">Hub</span>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/register" class="nav-link active">Register</a></li>
+                <li><a href="/login" class="nav-link">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Register Section -->
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-box auth-box-wide">
+                <div class="auth-header">
+                    <h1>Create Your Account</h1>
+                    <p>Set up your FoodHub account in less than a minute.</p>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                                {{ message }}
+                                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Register Form -->
+                <form method="post" class="auth-form">
+                    {% csrf_token %}
+
+                    <div class="form-section-heading">Personal details</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.first_name.id_for_label }}">First Name *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <ul class="error-messages">
+                                    {% for error in form.first_name.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.last_name.id_for_label }}">Last Name *</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <ul class="error-messages">
+                                    {% for error in form.last_name.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-section-heading">Account details</div>
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email Address *</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <ul class="error-messages">
+                                {% for error in form.email.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.admission_id.id_for_label }}">Admission ID *</label>
+                        {{ form.admission_id }}
+                        {% if form.admission_id.errors %}
+                            <ul class="error-messages">
+                                {% for error in form.admission_id.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+
+                    <div class="form-group">
+                        <label for="{{ form.user_type.id_for_label }}">User Type *</label>
+                        {{ form.user_type }}
+                        {% if form.user_type.errors %}
+                            <ul class="error-messages">
+                                {% for error in form.user_type.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}">Username *</label>
+                        {{ form.username }}
+                        <small class="help-text">3-30 characters. Alphanumeric characters only.</small>
+                        {% if form.username.errors %}
+                            <ul class="error-messages">
+                                {% for error in form.username.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-section-heading">Secure your account</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.password1.id_for_label }}">Password *</label>
+                            {{ form.password1 }}
+                            <small class="help-text">Use a mix of letters, numbers, and symbols.</small>
+                            <ul class="password-requirements" id="registration-password-requirements">
+                                <li data-requirement="length"><span class="req-check">✗</span> At least 8 characters</li>
+                                <li data-requirement="upper"><span class="req-check">✗</span> One uppercase letter</li>
+                                <li data-requirement="lower"><span class="req-check">✗</span> One lowercase letter</li>
+                                <li data-requirement="number"><span class="req-check">✗</span> One number</li>
+                                <li data-requirement="special"><span class="req-check">✗</span> One special character</li>
+                            </ul>
+                            {% if form.password1.errors %}
+                                <ul class="error-messages">
+                                    {% for error in form.password1.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.password2.id_for_label }}">Confirm Password *</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <ul class="error-messages">
+                                    {% for error in form.password2.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <label class="remember-me">
+                        <input type="checkbox" id="registration-show-password" aria-controls="{{ form.password1.id_for_label }} {{ form.password2.id_for_label }}" style="width:auto; min-height:0;">
+                        Show password
+                    </label>
+
+                    <div class="terms-checkbox">
+                        <label>
+                            <input type="checkbox" name="terms" required>
+                            <span>I agree to the terms and conditions</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="/login">Log in here</a></p>
+                </div>
+            </div>
+
+            <!-- Illustration -->
+            <div class="auth-illustration">
+                <div class="illustration-emoji">🍲</div>
+                <p class="registration-panel-kicker">A BETTER LUNCH STARTS HERE</p>
+                <h3>Your canteen, made easy.</h3>
+                <p>Create your account to explore the menu, book ahead, and find fresh canteen offers.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Food Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'canteen/js/script.js' %}"></script>
+    <script>
+        const registrationPasswordToggle = document.getElementById('registration-show-password');
+        const registrationPasswordInputs = [
+            document.getElementById('{{ form.password1.id_for_label }}'),
+            document.getElementById('{{ form.password2.id_for_label }}')
+        ];
+
+        registrationPasswordToggle.addEventListener('change', function () {
+            registrationPasswordInputs.forEach(function (passwordInput) {
+                passwordInput.type = registrationPasswordToggle.checked ? 'text' : 'password';
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,219 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Food Management System</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🍽️</span>
+                Food<span class="logo-highlight">Hub</span>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+                <li><a href="/profile" class="nav-link active">Profile</a></li>
+                <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <section class="dashboard-section">
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="dashboard-sidebar">
+                <div class="sidebar-profile">
+                    <div class="profile-avatar">{{ user.first_name|slice:':1'|upper }}</div>
+                    <div class="profile-info">
+                        <h4>{{ user.get_full_name }}</h4>
+                        <p class="profile-role">{{ profile.get_user_type_display }}</p>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="/dashboard" class="sidebar-link">
+                        <span class="icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="/profile" class="sidebar-link active">
+                        <span class="icon">👤</span>
+                        My Profile
+                    </a>
+                    <a href="/change-password" class="sidebar-link">
+                        <span class="icon">🔐</span>
+                        Change Password
+                    </a>
+                </nav>
+
+                <a href="/logout" class="sidebar-logout">
+                    <span class="icon">🚪</span>
+                    Logout
+                </a>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                                {{ message }}
+                                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="large-avatar">{{ user.first_name|slice:':1'|upper }}</div>
+                        <div class="profile-header-info">
+                            <h1>{{ user.get_full_name }}</h1>
+                            <p>{{ profile.get_user_type_display }} • Member since {{ user.date_joined|date:'M Y' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Profile Form -->
+                <div class="form-card">
+                    <h2>Edit Profile Information</h2>
+                    <form method="post" class="profile-form">
+                        {% csrf_token %}
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <ul class="error-messages">
+                                        {% for error in form.first_name.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <ul class="error-messages">
+                                        {% for error in form.last_name.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <ul class="error-messages">
+                                    {% for error in form.email.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Account Information -->
+                <div class="info-card">
+                    <h2>Account Information</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Username</span>
+                            <span class="info-value">{{ user.username }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">{{ user.email }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">User Type</span>
+                            <span class="info-value">{{ profile.get_user_type_display }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Member Since</span>
+                            <span class="info-value">{{ user.date_joined|date:'F d, Y' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Login</span>
+                            <span class="info-value">
+                                {% if user.last_login %}
+                                    {{ user.last_login|date:'F d, Y H:i' }}
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Account Status</span>
+                            <span class="info-value">
+                                {% if user.is_active %}
+                                    <span class="badge badge-success">Active</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Inactive</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Section -->
+                <div class="security-card">
+                    <h2>Security</h2>
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h4>Password</h4>
+                            <p>Change your password regularly to keep your account secure</p>
+                        </div>
+                        <a href="/change-password" class="btn btn-secondary">Change Password</a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Food Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'canteen/js/script.js' %}"></script>
+</body>
+
+</html>

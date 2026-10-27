@@ -1,0 +1,275 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Management System - Campus Canteen</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+</head>
+
+<body class="home-page">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🍽️</span>
+                Food<span class="logo-highlight">Hub</span>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#menu" class="nav-link">Daily Menu</a></li>
+                <li><a href="#booking" class="nav-link">Book Meal</a></li>
+                <li><a href="#offers" class="nav-link">Fresh Offers</a></li>
+                <li><a href="{% url 'login' %}" class="nav-link btn-login">Login</a></li>
+                <li><a href="{% url 'register' %}" class="nav-link btn-register">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-media" aria-hidden="true">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&amp;fit=crop&amp;w=2200&amp;q=88"
+                alt="" fetchpriority="high">
+        </div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <span class="hero-tag">THE CAMPUS CANTEEN, REIMAGINED</span>
+                <h1>Campus meals,<br><span>made for your day.</span></h1>
+                <p>See what's cooking, book ahead, and find something delicious between classes.</p>
+                <div class="hero-buttons">
+                    <a href="#menu" class="btn btn-primary">Explore today's menu</a>
+                    <a href="#offers" class="btn btn-secondary">Browse fresh offers</a>
+                </div>
+                <div class="hero-points" aria-label="Canteen highlights">
+                    <span>Menu updated daily</span>
+                    <span>Order ahead</span>
+                    <span>Fresh deals</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="menu">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">Our Services</span>
+                <h2>Everything You Need</h2>
+                <p>A complete solution for campus canteen management</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🍽️</div>
+                    <h3>Daily Menu</h3>
+                    <p>Check today's available meals, prices, and food availability in real-time.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'menu_catalog' %}" class="feature-link">Explore Menu</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="feature-link">Explore Menu</a>
+                    {% endif %}
+                </div>
+ 
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Easy Booking</h3>
+                    <p>Pre-book your meals before the deadline and secure your favorite dishes.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'place_order' %}" class="feature-link">Book Now</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="feature-link">Book Now</a>
+                    {% endif %}
+                </div>
+
+                <div class="feature-card highlight">
+                    <div class="feature-icon">🏷️</div>
+                    <h3>Fresh Offers</h3>
+                    <p>Get fresh unsold food at amazing discounted prices after dining hours.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'menu_catalog' %}" class="feature-link">View Offers</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="feature-link">View Offers</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Today's Menu Preview Section -->
+    <section class="menu-preview" id="menu">
+        <div class="section-container">
+            <div class="section-header" id="booking">
+                <span class="section-tag">Quick Preview</span>
+                <h2>Upcoming Menu</h2>
+            </div>
+
+            <div class="menu-cards-grid">
+                {% for item in menu_items %}
+                    <div class="menu-item-card">
+                        <div class="meal-badge {{ item.meal_type }}">{{ item.get_meal_type_display }}</div>
+                        <div class="meal-content">
+                            <h4>{{ item.name }}</h4>
+                            <p class="meal-desc">{{ item.description }}</p>
+                            <div class="meal-footer">
+                                <span class="price">₹{{ item.price }}</span>
+                                <span class="availability">{{ item.available_quantity }} available</span>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="empty-state">The next menu will appear here when the canteen staff uploads it.</p>
+                {% endfor %}
+            </div>
+
+            <div class="view-menu-btn">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'menu_catalog' %}" class="btn btn-primary">View Full Menu & Book Now</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Login to Book a Meal</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Fresh Offers Section -->
+    <section class="offers" id="offers">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">Limited Time</span>
+                <h2>Fresh Food Offers</h2>
+                <p>Discounted fresh food available for limited time</p>
+            </div>
+
+            <div class="offers-grid">
+                {% for offer in offers %}
+                    <div class="offer-card">
+                        <div class="offer-badge">{{ offer.discount_percentage }}% OFF</div>
+                        <div class="offer-image-placeholder">🏷️</div>
+                        <div class="offer-content">
+                            <h4>{{ offer.name }}</h4>
+                            <div class="offer-prices">
+                                <span class="original-price">₹{{ offer.original_price }}</span>
+                                <span class="discount-price">₹{{ offer.discounted_price }}</span>
+                            </div>
+                            <p class="offer-desc">{{ offer.description }}</p>
+                            <div class="offer-qty">Quantity: {{ offer.available_quantity }} available</div>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'menu_catalog' %}" class="btn btn-small">View Offer</a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-small">Login to Order</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="empty-state">Fresh offers will appear here when the canteen staff publishes them.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about">
+        <div class="section-container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <span class="section-tag">About Us</span>
+                    <h2>Why Choose Our Canteen?</h2>
+                    <p>Our Food Management System ensures efficient canteen operations while providing students and staff with convenient meal booking and amazing food offers.</p>
+                    
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <span class="check-mark">✓</span>
+                            <div>
+                                <h4>Real-time Menu</h4>
+                                <p>Updated daily with fresh items and availability</p>
+                            </div>
+                        </div>
+                        <div class="about-feature">
+                            <span class="check-mark">✓</span>
+                            <div>
+                                <h4>Easy Booking</h4>
+                                <p>Pre-book meals with just a few clicks</p>
+                            </div>
+                        </div>
+                        <div class="about-feature">
+                            <span class="check-mark">✓</span>
+                            <div>
+                                <h4>Fresh Offers</h4>
+                                <p>Get quality food at discounted prices</p>
+                            </div>
+                        </div>
+                        <div class="about-feature">
+                            <span class="check-mark">✓</span>
+                            <div>
+                                <h4>Role-Based Access</h4>
+                                <p>Different dashboards for students, staff, and admins</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="image-placeholder">🏢</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta">
+        <div class="section-container">
+            <h2>Ready to Get Started?</h2>
+            <p>Join our canteen management system today and enjoy convenient meal booking and amazing food offers.</p>
+            <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn btn-primary">Create Account</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login Here</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Food Management System</h4>
+                    <p>Smart canteen management for educational institutions</p>
+                </div>
+                <div class="footer-section">
+                    <h5>Quick Links</h5>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Menu</a></li>
+                        <li><a href="#">Offers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h5>Help</h5>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Food Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'canteen/js/script.js' %}"></script>
+</body>
+
+</html>

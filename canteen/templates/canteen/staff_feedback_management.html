@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Management</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo"><span class="logo-icon">🍽️</span>Food<span class="logo-highlight">Hub</span> <span style="color: #f7931e; font-weight: bold;">STAFF</span></div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="/dashboard" class="nav-link active">Dashboard</a></li>
+            <li><a href="/staff/menu/" class="nav-link">Menu</a></li>
+            <li><a href="/staff/offers/" class="nav-link">Offers</a></li>
+            <li><a href="/logout" class="nav-link btn-logout">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="dashboard-section menu-management-section">
+    <div class="dashboard-container menu-management-container">
+        <main class="dashboard-content menu-management-content" style="max-width: 1400px; margin: 0 auto;">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="welcome-card menu-management-welcome">
+                <div>
+                    <p class="welcome-kicker">CUSTOMER FEEDBACK</p>
+                    <h1>User Feedback</h1>
+                    <p>Review student feedback on menu items and offers.</p>
+                </div>
+                <div class="welcome-badge">Insights</div>
+            </div>
+
+            <div class="dashboard-section-card menu-items-card" style="padding: 24px;">
+                <h2>⭐ Feedback</h2>
+                <div class="feedback-container" style="max-width: 100%;">
+                    {% for feedback in feedback_list %}
+                        <div class="feedback-item">
+                            <div class="feedback-header">
+                                <strong>{{ feedback.user.get_full_name|default:feedback.user.username }}</strong>
+                                <span class="feedback-rating">{{ feedback.get_rating_display }}</span>
+                            </div>
+                            <p>{{ feedback.comment }}</p>
+                            <small>{{ feedback.created_at|date:'M d, Y H:i' }}</small>
+                        </div>
+                    {% empty %}
+                        <div style="padding: 20px; text-align: center; color: #999;">No feedback available yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+</section>
+</body>
+</html>

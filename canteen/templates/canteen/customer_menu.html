@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Menu - FoodHub</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><span class="logo-icon">🍽️</span> Food<span class="logo-highlight">Hub</span></div>
+            <ul class="nav-menu">
+                <li><a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a></li>
+                <li><a href="{% url 'menu_catalog' %}" class="nav-link active">Today's Menu</a></li>
+                <li><a href="{% url 'my_orders' %}" class="nav-link">My Orders</a></li>
+                <li><a href="{% url 'profile' %}" class="nav-link">Profile</a></li>
+                <li><a href="{% url 'logout' %}" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard-section">
+        <div class="section-container">
+            <div class="welcome-card">
+                <h1>Today's Menu</h1>
+                <p>Choose a meal and place your order while it is available.</p>
+            </div>
+
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}
+                </div>
+            {% endif %}
+
+            <section class="dashboard-section-card">
+                <h2>Menu Items</h2>
+                {% if menu_items %}
+                    <div class="menu-preview-grid">
+                        {% for item in menu_items %}
+                            <article class="menu-item">
+                                <span class="meal-type">{{ item.get_meal_type_display }}</span>
+                                <h4>{{ item.name }}</h4>
+                                <p>{{ item.description }}</p>
+                                <strong>₹{{ item.price }}</strong>
+                                <p>{{ item.available_quantity }} available</p>
+                                <a href="{% url 'place_order_for_menu' item.id %}" class="btn btn-primary btn-small">Order now</a>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No menu items are available today.</p>
+                {% endif %}
+            </section>
+
+            <section class="dashboard-section-card">
+                <h2>Today's Offers</h2>
+                {% if offers %}
+                    <div class="offers-preview-grid">
+                        {% for offer in offers %}
+                            <article class="offer-item">
+                                <span class="offer-badge">{{ offer.discount_percentage }}% OFF</span>
+                                <h4>{{ offer.name }}</h4>
+                                <p>{{ offer.description }}</p>
+                                <strong>₹{{ offer.discounted_price }}</strong>
+                                <p>{{ offer.available_quantity }} available</p>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No offers are available today.</p>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+</body>
+</html>

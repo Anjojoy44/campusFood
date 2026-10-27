@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders by Month</title>
+    <link rel="stylesheet" href="{% static 'canteen/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'canteen/css/dashboard.css' %}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo"><span class="logo-icon">🍽️</span>Food<span class="logo-highlight">Hub</span> <span style="color: #f7931e; font-weight: bold;">STAFF</span></div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a></li>
+            <li><a href="{% url 'staff_orders' %}" class="nav-link">All Orders</a></li>
+            <li><a href="{% url 'staff_orders_by_date' %}" class="nav-link">Orders by Date</a></li>
+            <li><a href="{% url 'staff_orders_by_month' %}" class="nav-link active">Orders by Month</a></li>
+            <li><a href="{% url 'notifications' %}" class="nav-link">Notifications</a></li>
+            <li><a href="{% url 'staff_menu' %}" class="nav-link">Menu</a></li>
+            <li><a href="{% url 'staff_offers' %}" class="nav-link">Offers</a></li>
+            <li><a href="{% url 'logout' %}" class="nav-link btn-logout">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="dashboard-section">
+    <div class="dashboard-container">
+        <main class="dashboard-content" style="max-width: 1100px; margin: 0 auto;">
+            <div class="welcome-card" style="background: linear-gradient(135deg, #1f5a44 0%, #2f855d 42%, #f08d4b 100%);">
+                <h1>Orders by Month</h1>
+                <p>Choose a delivery month to view that month's orders.</p>
+            </div>
+
+            <div class="dashboard-section-card">
+                <form method="get" style="display:flex; gap:12px; align-items:end; flex-wrap:wrap;">
+                    <label for="order-month">
+                        Delivery month
+                        <input id="order-month" type="month" name="month" value="{{ selected_month|date:'Y-m' }}" required>
+                    </label>
+                    <label for="order-status">
+                        Order status
+                        <select id="order-status" name="status">
+                            <option value="" {% if not selected_status %}selected{% endif %}>All statuses</option>
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit" class="btn btn-primary">View Orders</button>
+                    <a href="{% url 'staff_orders' %}" class="btn">All Orders</a>
+                </form>
+                <p>
+                    <a class="btn" href="{% url 'download_staff_order_report' 'month' 'xlsx' %}?month={{ selected_month|date:'Y-m' }}&amp;status={{ selected_status|urlencode }}">Download Excel</a>
+                    <a class="btn" href="{% url 'download_staff_order_report' 'month' 'pdf' %}?month={{ selected_month|date:'Y-m' }}&amp;status={{ selected_status|urlencode }}">Download PDF</a>
+                </p>
+            </div>
+
+            <div class="dashboard-section-card">
+                <h2>Orders for {{ selected_month|date:'F Y' }}</h2>
+                <div class="table-container">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Placed</th>
+                                <th>Customer</th>
+                                <th>Admission number</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.created_at|date:'M d, Y g:i A' }}</td>
+                                    <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                                    <td>{{ order.user.profile.admission_id|default:'Not provided' }}</td>
+                                    <td>
+                                        {% if order.menu_item %}
+                                            {{ order.menu_item.name }}
+                                        {% elif order.offer %}
+                                            {{ order.offer.name }}
+                                        {% else %}
+                                            Removed item
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.quantity }}</td>
+                                    <td>₹{{ order.total_price }}</td>
+                                    <td>{{ order.get_status_display }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">No orders for this month.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</section>
+</body>
+</html>
